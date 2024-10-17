@@ -56,7 +56,7 @@ Route::group([
           Route::get('Users/assigned-tasks', [UserController::class, 'getUsersWithAssignedTasks'])
               ->middleware('permission:user-list');  
 
-          Route::get('/user/trash',[UserController::class,'trashed'])
+          Route::get('/user-trash',[UserController::class,'trashed'])
               ->middleware('permission:user_trash');
 
           Route::post('/user/restore/{id}',[UserController::class,'restore'])
@@ -88,10 +88,10 @@ Route::group([
 
           //End of Task Api Route................................
 
-          Route::get('/tasks?type=&status=&assigned_to=&due_date=&priority=&depends_on=',[TaskController::class,'getAllTaskswithFilters'])
+          Route::get('/tasks-filter',[TaskController::class,'getAllTaskswithFilters'])
              ->middleware('permission:task-list');
          
-          Route::get('/tasks?status=Blocked',[TaskController::class,'getAllBluckedTasks()'])
+          Route::get('/tasks-blocked',[TaskController::class,'getAllBluckedTasks'])
              ->middleware('permission:task-list');
          
           //soft Delete
@@ -99,7 +99,7 @@ Route::group([
           Route::delete('/tasks/{task}/forceDelete',[TaskController::class,'forceDestroy'])
              ->middleware('permission:task_forceDelte');
 
-          Route::get('/tasks/trashed',[TaskController::class,'trashed'])
+          Route::get('/tasks-trash',[TaskController::class,'trashed'])
              ->middleware('permission:task_trash');
 
           Route::get('/tasks/{task}/restore',[TaskController::class,'restore'])
@@ -130,7 +130,7 @@ Route::group([
            */
 
             Route::get('/role', [RoleController::class, 'index'])
-               ->middleware('permission:role-list');
+              ->middleware('permission:role-list');
 
             Route::get('/role/{id}', [RoleController::class, 'show'])
               ->middleware('permission:role-list');

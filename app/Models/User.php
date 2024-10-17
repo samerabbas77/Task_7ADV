@@ -113,7 +113,7 @@ class User extends Authenticatable implements JWTSubject
         $querry->whereRelation('assignedTasks',function($q) use ($status,$priority)
     {
        if(!empty($priority)) $q->where('priority',$priority);
-       if(!empty($status))  $q->where('ststus',$status);
+       if(!empty($status))  $q->where('status',$status);
 
 
     });

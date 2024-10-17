@@ -29,11 +29,11 @@ class UpdateTaskRequest extends FormRequest
         return [
                     'title'              => ['nullable', 'string','max:100'],
                     'description'        => ['nullable', 'string','max:300'],
-                    'type'               => ['nullable','in: Bug, Feature, Improvement'],               
-                    'priority'           => ['nullable','in: hight,medium,low'],
+                    'type'               => ['nullable','in:Bug,Feature,Improvement'],               
+                    'priority'           => ['nullable','in:high,medium,low'],
                     'due_date'           => ['nullable','date'],
-                    'task_dependency'    => ['nullable|array'],
-                    'task_dependency.*'  => ['exists:user,id']
+                    'task_dependency'    => ['nullable','array'],
+                    'task_dependency.*'  => ['exists:tasks,id']
                 ];
     }
 

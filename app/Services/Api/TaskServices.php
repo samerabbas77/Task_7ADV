@@ -70,8 +70,9 @@ class TaskServices
     public function getAllBluckedTasks()
     {
         try {
-            $tasks = Task::TasksFilterbyAll(null,$status= 'Blocked');
-            return $tasks;
+            $query = Task::query()
+                            ->TasksFilterbyAll(null, 'Blocked',null, null, null);
+            return $query->paginate();
         } catch (Exception $e) {
             Log::error("Error while fetch the blocked tasks".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
@@ -106,7 +107,7 @@ class TaskServices
                     $dependencyTask = Task::findOrFail($dependencyTaskId);
                 
                     // Get the tasks that $dependencyTask depends on (eager loading or proper query)
-                    $dependentOnTasks = $dependencyTask->dependencyOn()->pluck('dependency_task_id')->toArray();
+                    $dependentOnTasks = $dependencyTask->dependencyOn()->pluck('dependent_on_task_id')->toArray();
                 
                     // Check if any of these tasks (dependentOnTasks) include the new task being created
                     if (in_array($task->id, $dependentOnTasks)) { 
@@ -117,7 +118,7 @@ class TaskServices
                     // If no conflict, create the new dependency
                     DependencyTask::create([
                         'task_id' => $task->id, // ID of the new task
-                        'dependency_task_id' => $dependencyTaskId
+                        'dependent_on_task_id' => $dependencyTaskId
                     ]);
                 }
                 
@@ -164,7 +165,7 @@ class TaskServices
                     //check if the 'task_dependency' from the request not dependce on the current task
 
                     //get the tasks that $dependcyTask(from request) dependce on
-                    $dependentOnTasks = $dependencyTask->dependencyOn()->pluck('dependency_task_id')->toArray();
+                    $dependentOnTasks = $dependencyTask->dependencyOn()->pluck('dependent_on_task_id')->toArray();
 
                     //if any task of this tasks ($dependce_onTasks) is currnt updated task throw exception
                     if(in_array($task->id, $dependentOnTasks))
@@ -175,7 +176,7 @@ class TaskServices
 
                     DependencyTask::create([
                         'task_id'  => $task->id,
-                        'dependency_task_id' => $dependencytaskId
+                        'dependent_on_task_id' => $dependencytaskId
                     ]);
                 }
                 $this->checkTaskDependency($task);
@@ -248,7 +249,7 @@ class TaskServices
     {
         try {
             $tasks = Task::onlyTrashed()->paginate(perPage: 10);
-            return $tasks;
+           return $tasks;
         } catch (Exception $e) {
             Log::error("Error while fetching deleted tasks".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
@@ -318,10 +319,10 @@ class TaskServices
                     'new_status' => $task->status,
                     'task_id'    => $task->id
                 ]);
-                     
+                    
         } catch (Exception $e) {
             Log::error("Error while check for the task dependency ".$e->getMessage());
-            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+            throw new HttpResponseException($this->error(null, 'there is something wrong in server'.$e, 500));
         }
     }
     //...................................................................
@@ -353,13 +354,13 @@ class TaskServices
                     }
                 }
             }elseif($validated['status'] == 'Open' || $validated['status'] == 'In_Progress') 
-            {
+            {                
                $this->checkTaskDependency($task,$validated['status']);
 
                if($task->status == 'Blocked') 
                {
-                Log::error("You cant set the status to open or In_progress, the task have dependency");
-                throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+                 Log::error("You cant set the status to open or In_progress, the task have dependency");
+                 return false;
                }
 
             }elseif($validated['status'] == 'Blocked')
@@ -371,10 +372,11 @@ class TaskServices
                     $dependconMeTask->update(['status' => 'Blocked']);
                 }
             }
+            return true;
 
         } catch (Exception $e) {
             Log::error("Error while Updating the task status".$e->getMessage());
-            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+            throw new HttpResponseException($this->error(null, 'there is something wrong in server ', 500));
         }
     }
     //...................................................................
@@ -384,7 +386,7 @@ class TaskServices
      * @param mixed $validated
      * @param string $id
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
-     * @return Task|Task[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model
+     * @return Task|Task[]|\Illuminate\Database\Eloquent\Collection|\Illuminate\Database\Eloquent\Model|null
      */
     public function assignTask($validated,string $id)
     {
@@ -410,7 +412,7 @@ class TaskServices
             if($task->assigned_to != null)
             {
                 Log::error("This Task is already assign  to a user. ");
-                throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500)); 
+                return null;
             }
 
             $task->assigned_to = $user->id;
@@ -418,12 +420,12 @@ class TaskServices
 
             return $task;
 
-       }catch (Exception $e) {
-            Log::error("Error while assigned  the task to the user :".$e->getMessage());
-            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
-        }catch (ModelNotFoundException $e) {
+       }catch (ModelNotFoundException $e) {
             Log::error("Task Not Found".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+        }catch (Exception $e) {
+            Log::error("Error while assigned  the task to the user :".$e->getMessage());
+            throw new HttpResponseException($this->error(null, 'there is something wrong in server'.$e, 500));
         }
 
     } 
@@ -513,15 +515,15 @@ class TaskServices
 
             // Store the file securely
             $path = $file->storeAs('Uploads', "{$fileName}.{$extension}", 'public');
-
+            
             // Get the full URL path of the stored file
             $url = Storage::url($path);
-
+            
 
             // Store file metadata in the database
             $uploadedFile = $task->attachments()->create([
                 'file_name' => $fileName,
-                'file_path' => $url,
+                'file_path' => $path,
                 'file_type' => $mimeType
             ]);
 
@@ -543,10 +545,11 @@ class TaskServices
     public function addComment($validated,$task)
     {
         try {
-              $task->comments()->create([
-                'content' => $validated['comment']
-              ]);
-              return $task;
+            
+              $data =  $task->comments()->create([
+                        'content' => $validated['comment']
+                    ]);
+              return $data;
         }catch (Exception $e) {
             Log::error("Error while add comment to Attachment table :".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));

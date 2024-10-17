@@ -11,4 +11,6 @@ class DependencyTask extends Model
     use SoftDeletes , HasFactory;
 
     protected $table = 'dependency_tasks';
+
+    protected $fillable = ['task_id', 'dependent_on_task_id'];
 }

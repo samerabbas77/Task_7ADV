@@ -34,7 +34,7 @@ class UserServices
     }
 
 //*********************************************************** 
-    public function getUsersWithAssignedTasks(int $perPage,$status,$priority)
+    public function getUsersWithAssignedTasks(string $perPage,$status =null,$priority =null)
     {
         try {
             $users = User::with('assignedTasks')

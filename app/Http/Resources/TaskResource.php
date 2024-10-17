@@ -14,6 +14,7 @@ class TaskResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $full_name = "{$this->firstName} {$this->lastName}";
         return
         [
             'title'           =>  $this->title,            
@@ -22,7 +23,7 @@ class TaskResource extends JsonResource
             'Status'          => $this->status,
             'Priority'        => $this->priority,
             'Due Date'        => $this->due_date,
-            'Assigned To'     => $this->user->full_name,
+            'Assigned To'     => $full_name,
         ];
     }
 }

@@ -26,7 +26,7 @@ class UpdateTaskStatusRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'status' => 'required'|'in:Open,In_Progress, Completed, Blocked'
+            'status' => ['required','in:Open,In_Progress,Completed,Blocked']
         ];
     }
 

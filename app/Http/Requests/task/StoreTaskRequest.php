@@ -29,11 +29,11 @@ class StoreTaskRequest extends FormRequest
         return [
                     'title'              => ['required', 'string','max:100'],
                     'description'        => ['required', 'string','max:300'],
-                    'type'               => ['required','in: Bug, Feature, Improvement'],    
-                    'priority'           => ['required','in: hight,medium,low'],
+                    'type'               => ['required','in:Bug,Feature,Improvement'],    
+                    'priority'           => ['required','in:high,medium,low'],
                     'due_date'           => ['required','date'],
-                    'task_dependency'    => ['nullable|array'],
-                    'task_dependency.*'  => ['exists:user,id']
+                    'task_dependency'    => ['nullable','array'],
+                    'task_dependency.*'  => ['exists:tasks,id']
                     ];
     }
 

@@ -137,7 +137,7 @@ class TaskController extends Controller
 
     public function trashed()
     {
-        $users = $this->taskServices->getTrashedTasks();
+       $users = $this->taskServices->getTrashedTasks();
         return $this->success(TaskResource::collection($users),'trashed tasks fetching successfully');
 
     }
@@ -147,7 +147,7 @@ class TaskController extends Controller
     public function restore(string $id)
     {
         $user = $this->taskServices->restoreTask($id);
-        return $this->successResponse(new TaskResource($user), "User restored Successfully");
+        return $this->success(new TaskResource($user), "User restored Successfully");
     }
     //.............................................END OF CRUD FUNCTIONS ...................................
     //.................................................................................................
@@ -155,8 +155,13 @@ class TaskController extends Controller
     public function updateStatus(UpdateTaskStatusRequest $request,Task $task)
     {
         $validated = $request->only('status');
-        $this->taskServices->updateStatus($validated,$task);
-        return $this->success(null,'Update task status Successfully',200);  
+        $result = $this->taskServices->updateStatus($validated,$task);
+        if($result)
+        {
+            return $this->success(null,'Update task status Successfully',200);  
+        }else{
+            return $this->error('You cant set the status to open or In_progress, the task have dependency', 400);
+        }
     }
 
     
@@ -167,7 +172,12 @@ class TaskController extends Controller
     {
         $validated = $request->only('firstName','lastName');
         $task = $this->taskServices->assignTask($validated,$id);
-        return $this->success(new TaskResource($task) ,'Assign task Successfully',200);
+        if($task)
+        {
+            return $this->success(new TaskResource($task) ,'Assign task Successfully',200);
+        }else{
+            return $this->error('This Task is already assign  to a user.', 400);
+        }
     }
 
 
@@ -196,8 +206,8 @@ class TaskController extends Controller
     public function addComment(AddCommentRequest $request, Task $task)
     {
         $validated = $request->only(['comment']);  
-      $task = $this->taskServices->addComment($validated,$task);
-      return $this->success(new TaskResource($task),'Add comment Successfully',200); 
+      $comment = $this->taskServices->addComment($validated,$task);
+      return $this->success($comment,'Add comment Successfully',200); 
     }
 
     //...........................................Task Repports.............................

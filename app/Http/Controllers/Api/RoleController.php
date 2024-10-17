@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api;;
 
-use Illuminate\Http\Request;
 use App\Traits\ApiResponseTrait;
 use App\Services\Api\RoleServices;
 use Spatie\Permission\Models\Role;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\StoreRoleRequest;
+
+use App\Http\Requests\Role\StoreRoleRequest;
 
 class RoleController extends Controller
 {

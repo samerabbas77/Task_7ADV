@@ -22,7 +22,7 @@ class TaskFactory extends Factory
                 'description' => $this->faker->paragraph(),
                 'type' => $this->faker->randomElement(['Bug', 'Feature', 'Improvement']),
                 'status' => $this->faker->randomElement(['Open', 'In_Progress', 'Completed', 'Blocked']),
-                'priority' => $this->faker->randomElement(['hight', 'medium', 'low']),
+                'priority' => $this->faker->randomElement(['high', 'medium', 'low']),
                 'due_date' => $this->faker->date(),
                 'assigned_to' => User::factory(), // Assuming it's assigned to another user
                 'created_at' => now(),

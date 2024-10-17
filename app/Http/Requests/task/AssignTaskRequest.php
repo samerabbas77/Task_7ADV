@@ -47,8 +47,8 @@ class AssignTaskRequest extends FormRequest
     {
         return
             [
-                'firstName'     => ['required','exists:user,firstName'],
-                'lastName'      => ['required','exists:user,lastName']
+                'firstName'     => ['required','exists:users,firstName'],
+                'lastName'      => ['required','exists:users,lastName']
             ];
     }
 

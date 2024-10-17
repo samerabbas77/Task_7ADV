@@ -22,11 +22,12 @@ class Task extends Model
     
     //.....................Relation............................................
   
-    public function user()
+    // Inverse of assignedTasks() in the User model
+    public function assignedUser()
     {
-        return $this->belongsTo(User::class,'assigned_to','id');
+        return $this->belongsTo(User::class, 'assigned_to');
     }
-
+    
     public function taskStatus()
     {
         return $this->hasMany(TaskStatus::class,'task_id','id');
@@ -34,7 +35,7 @@ class Task extends Model
     
     public function comments()
     {
-        $this->morphMany(Comment::class,'commentable');
+        return $this->morphMany(Comment::class,'commentable');
     }
 
    
@@ -92,7 +93,7 @@ class Task extends Model
 
 
 
-    public function scopeTasksFilterbyAll($query,$type,$status =null,$dueDate =null,$priority =null,$assigned_to =null,$dependce_on =null)
+    public function scopeTasksFilterbyAll($query,$type=null,$status =null,$dueDate =null,$priority =null,$assigned_to =null,$dependce_on =null)
     {
         if (filled($type)) 
         {
@@ -145,7 +146,9 @@ class Task extends Model
                 // Delete attachments from storage before force deleting them from the database
                 foreach ($task->attachments as $attachment) {
                     // Assuming 'file_path' is the field in your attachments table that stores the file path
-                    Storage::delete('public/upload/' . $attachment->file_path);
+                    dd($attachment->file_path);
+                    Storage::delete( 'Uploads/'.$attachment->file_name);
+                    
                 }
                 $task->attachments()->forceDelete();
             }

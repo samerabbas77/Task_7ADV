@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Role;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -29,7 +29,7 @@ class StoreRoleRequest extends FormRequest
                 'string',
                 $roleId ? Rule::unique('roles')->ignore($roleId) : 'unique:roles,name',
             ],
-            'permission' => 'required',
+            'permission' => ['required','array'],
         ];
     }
 }
