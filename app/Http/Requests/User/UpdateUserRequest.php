@@ -30,7 +30,7 @@ class UpdateUserRequest extends FormRequest
             'firstName'    => 'nullable|string|max:255',
             'lastName'     => 'nullable|string|max:255',
             'email'        => 'nullable|email|unique:users|max:255',
-            'password'     => 'nullable|string|confirmed|min:8',
+            'password'     => 'nullable|string|min:8',
             'role'         => ['nullable','in:admin,user']
         ];
     }
