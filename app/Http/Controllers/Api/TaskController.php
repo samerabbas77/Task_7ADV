@@ -26,10 +26,23 @@ class TaskController extends Controller
     {
         $this->taskServices = $taskServices;
 
-        $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:product-create', ['only' => ['create','store']]);
-         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+        $this->middleware('permission:task-list',             ['only' => ['index','getAllTaskswithFilters','getAllBluckedTasks','show']]);
+        $this->middleware('permission:task-create',           ['only' => ['store']]);
+        $this->middleware('permission:task-edit',             ['only' => ['update']]);
+        $this->middleware('permission:task-delete',           ['only' => ['destroy']]);
+        $this->middleware('permission:task_forceDelte',       ['only' => ['forceDestroy']]);
+        $this->middleware('permission:task_trash',            ['only' => ['trashed']]);
+        $this->middleware('permission:task_restore',          ['only' => ['restore']]);
+        
+        $this->middleware('permission:update_status',         ['only' => ['updateStatus']]);
+        
+        $this->middleware('permission:assign_task',           ['only' => ['assignTask']]);
+        $this->middleware('permission:reAssign_task',         ['only' => ['reAssignTask']]);
+        
+        $this->middleware('permission:upload_attachment',     ['only' => ['uploadAttachment']]);
+        $this->middleware('permission:add_comment',           ['only' => ['addComment']]);
+
+        $this->middleware('permission:task_reports',          ['only' => ['taskReports']]);
     }
     /**
      * Display a listing of the resource.

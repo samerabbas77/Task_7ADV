@@ -17,11 +17,11 @@ class RoleController extends Controller
     public function __construct(RoleServices $roleService)
     {
         $this->roleService = $roleService;
-        $this->middleware(['role:Admin', 'permission:صلاحيات المستخدمين'])->only('index');
-        $this->middleware(['role:Admin', 'permission:عرض صلاحية'])->only('show');
-        $this->middleware(['role:Admin', 'permission:اضافة صلاحية'])->only(['store', 'create']);
-        $this->middleware(['role:Admin', 'permission:تعديل صلاحية'])->only(['edit', 'update']);
-        $this->middleware(['role:Admin', 'permission:حذف صلاحية'])->only('destroy');
+        $this->middleware(['role:Admin', 'permission:role-list'])->only('index');
+        $this->middleware(['role:Admin', 'permission:role-list'])->only('show');
+        $this->middleware(['role:Admin', 'permission:role-create'])->only(['store']);
+        $this->middleware(['role:Admin', 'permission:role-edit'])->only(['update']);
+        $this->middleware(['role:Admin', 'permission:role-delete'])->only('destroy');
     }
     /**
      * Display a listing of the resource.

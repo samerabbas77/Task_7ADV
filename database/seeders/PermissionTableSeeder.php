@@ -23,7 +23,7 @@ class PermissionTableSeeder extends Seeder
             'user-create',
             'user-edit',
             'user-delete',
-            'user_forceDelte',
+            'user_forceDelete',
             'user_trash',
             'user_restore',
 

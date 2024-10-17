@@ -18,10 +18,13 @@ class UserController extends Controller
     public function __construct(UserServices $userServices)
     {
         $this->userServices = $userServices;
-        $this->middleware('permission:product-list|product-create|product-edit|product-delete', ['only' => ['index','show']]);
-         $this->middleware('permission:product-create', ['only' => ['create','store']]);
-         $this->middleware('permission:product-edit', ['only' => ['edit','update']]);
-         $this->middleware('permission:product-delete', ['only' => ['destroy']]);
+        $this->middleware( 'permission:user-list',            ['only' => ['index','getUsersWithAssignedTasks','show']]);
+        $this->middleware('permission:user-create',           ['only' => ['store']]);
+        $this->middleware('permission:user-edit',             ['only' => ['update']]);
+        $this->middleware('permission:user-delete',           ['only' => ['destroy']]);
+        $this->middleware('permission:user_trash',            ['only' => ['trashed']]);
+        $this->middleware('permission:user_restore',          ['only' => ['restore']]);
+        $this->middleware('permission:user_forceDelete',      ['only' => ['forceDelete']]);
     }
 
 
@@ -115,7 +118,7 @@ class UserController extends Controller
      * Permanently delete a trashed (soft deleted) resource by its ID 
      */
 
-     public function forceDelte(string $id)
+     public function forceDelete(string $id)
      {
         $this->userServices->forceDeleteUser($id);
         return $this->successResponse(null, "User Permanently deleted Successfully");

@@ -33,48 +33,96 @@ Route::group([
          *
          * These routes handle User management operations.
          */
-       
-          Route::apiResource('/user',UserController::class);
+        //User Api routes.................
 
-          Route::get('Users/assigned-tasks', [UserController::class, 'getUsersWithAssignedTasks']);  
+          Route::get('/user', [UserController::class, 'index'])
+              ->middleware('permission:user-list');
+          
+          Route::get('/user/{id}', [UserController::class, 'show'])
+              ->middleware('permission:user-list');
+          
+          Route::post('/user', [UserController::class, 'store'])
+              ->middleware('permission:user-create');
+          
+          Route::put('/user/{id}', [UserController::class, 'update'])
+              ->middleware('permission:user-edit');
+          
+          Route::delete('/user/{id}', [UserController::class, 'destroy'])
+              ->middleware('permission:user-delete');
 
-          Route::get('/user/trash',[UserController::class,'trashed']);
+        //End of User Api routes.....................
 
-          Route::post('/user/restore/{id}',[UserController::class,'restore']);
+          Route::get('Users/assigned-tasks', [UserController::class, 'getUsersWithAssignedTasks'])
+              ->middleware('permission:user-list');  
 
-          Route::delete('/user/force/{id}',[UserController::class,'forceDelte']);
+          Route::get('/user/trash',[UserController::class,'trashed'])
+              ->middleware('permission:user_trash');
+
+          Route::post('/user/restore/{id}',[UserController::class,'restore'])
+              ->middleware('permission:user_restore');
+
+          Route::delete('/user/force/{id}',[UserController::class,'forceDelete'])
+              ->middleware('permission:user_forceDelete');
 
           //.........................End of User Route.....................................
           /**
            * Task Route 
            */
-          Route::apiResource('tasks',TaskController::class);
+       
+          //Task Api Route....................................
+          Route::get('/tasks', [TaskController::class, 'index'])
+              ->middleware('permission:task-list');
 
-          Route::get('tasks?type=&status=&assigned_to=&due_date=&priority=&depends_on=',[TaskController::class,'getAllTaskswithFilters']);
+          Route::get('/tasks/{id}', [TaskController::class, 'show'])
+              ->middleware('permission:task-list');
+
+          Route::post('/tasks', [TaskController::class, 'store'])
+              ->middleware('permission:task-create');
+
+          Route::put('/tasks/{id}', [TaskController::class, 'update'])
+              ->middleware('permission:task-edit');
+
+          Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])
+              ->middleware('permission:task-delete');
+
+          //End of Task Api Route................................
+
+          Route::get('tasks?type=&status=&assigned_to=&due_date=&priority=&depends_on=',[TaskController::class,'getAllTaskswithFilters'])
+             ->middleware('task-list');
          
-          Route::get('tasks?status=Blocked',[TaskController::class,'getAllBluckedTasks()']);
+          Route::get('tasks?status=Blocked',[TaskController::class,'getAllBluckedTasks()'])
+             ->middleware('task-list');
          
           //soft Delete
 
-          Route::delete('tasks/{task}/forceDelete',[TaskController::class,'forceDestroy']);
+          Route::delete('tasks/{task}/forceDelete',[TaskController::class,'forceDestroy'])
+             ->middleware('task_forceDelte');
 
-          Route::get('tasks/trashed',[TaskController::class,'trashed']);
+          Route::get('tasks/trashed',[TaskController::class,'trashed'])
+             ->middleware('task_trash');
 
-          Route::get('tasks/{task}/restore',[TaskController::class,'restore']);
+          Route::get('tasks/{task}/restore',[TaskController::class,'restore'])
+             ->middleware('task_restore');
 
           //.....End of soft Delete
 
-          Route::put('/tasks/{task}/status',[TaskController::class,'updateStatus']);
+          Route::put('/tasks/{task}/status',[TaskController::class,'updateStatus'])
+             ->middleware('update_status');
 
-          Route::post('/tasks/{task}/assign',[TaskController::class,'assignTask']);
+          Route::post('/tasks/{task}/assign',[TaskController::class,'assignTask'])
+             ->middleware('assign_task');
 
-          Route::put('/tasks/{task}/reAssign',[TaskController::class,'reAssignTask']);
+          Route::put('/tasks/{task}/reAssign',[TaskController::class,'reAssignTask'])
+             ->middleware('reAssign_task');
 
-          Route::post('/tasks/{task}/attachments',[TaskController::class,'uploadAttachment']);
+          Route::post('/tasks/{task}/attachments',[TaskController::class,'uploadAttachment'])
+             ->middleware('upload_attachment');
 
-          Route::post('/tasks/{task}/comments',[TaskController::class,'addComment']);
+          Route::post('/tasks/{task}/comments',[TaskController::class,'addComment'])
+             ->middleware('add_comment');
 
-          Route::get('/reports/daily-tasks',[TaskController::class,'taskReports']);
+          Route::get('/reports/daily-tasks',[TaskController::class,'taskReports'])
+             ->middleware('task_reports');
  
 
         });
