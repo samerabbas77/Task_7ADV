@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
+use function PHPUnit\Framework\isEmpty;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-
-use function PHPUnit\Framework\isEmpty;
 
 class Task extends Model
 {
@@ -134,24 +135,45 @@ class Task extends Model
     static::deleting(function ($task) {
         if ($task->isForceDeleting()) {
             // Force delete related models
-            $task->taskStatus()->forceDelete();
-            $task->comments()->forceDelete();
-            $task->attachments()->forceDelete();
-            // Soft delete pivot table records (DependencyTask)
+            if ($task->taskStatus()) {
+                $task->taskStatus()->forceDelete();
+            }
+            if ($task->comments()) {
+                $task->comments()->forceDelete();
+            }
+            if ($task->attachments()) {
+                // Delete attachments from storage before force deleting them from the database
+                foreach ($task->attachments as $attachment) {
+                    // Assuming 'file_path' is the field in your attachments table that stores the file path
+                    Storage::delete('public/upload/' . $attachment->file_path);
+                }
+                $task->attachments()->forceDelete();
+            }
+    
+            // Force delete pivot table records (DependencyTask)
             DependencyTask::where('task_id', $task->id)
                           ->orWhere('dependent_on_task_id', $task->id)
                           ->forceDelete();
         } else {
             // Soft delete related models
-            $task->taskStatus()->delete();
-            $task->comments()->delete();
-            $task->attachments()->delete();
+            if ($task->taskStatus()) {
+                $task->taskStatus()->delete();
+            }
+            if ($task->comments()) {
+                $task->comments()->delete();
+            }
+            if ($task->attachments()) {
+                $task->attachments()->delete();
+            }
+    
             // Soft delete the task dependencies
             DependencyTask::where('task_id', $task->id)
                           ->orWhere('dependent_on_task_id', $task->id)
                           ->delete();
         }
     });
+    
+    
 }
 
 

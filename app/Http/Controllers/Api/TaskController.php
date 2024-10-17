@@ -122,7 +122,7 @@ class TaskController extends Controller
      */
     //............Soft Delete....
     public function destroy(Task $task)
-    {
+    {    
         $this->taskServices->deleteTask($task);
         return $this->success(null,'Soft Deleting task Successfully',200);
     }

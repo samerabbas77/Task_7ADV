@@ -200,13 +200,13 @@ class TaskServices
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
      * @return void
      */
-    public function deleteTask(Task $task)
+    public function deleteTask($task)
     {
         try {
                 $task->delete();
         } catch (Exception $e) {
             Log::error("Error while Soft Deleting the task ".$e->getMessage());
-            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+            throw new HttpResponseException($this->error(null, 'there is something wrong in server'.$e, 500));
         }
     }
 
@@ -221,17 +221,20 @@ class TaskServices
      */
     public function forceDeleteTask(string $id)
     {
-            try {
-                // Find the task by ID
-                $task = Task::withTrashed()->findOrFail($id);
-                $task->forceDelete();
-        } catch (Exception $e) {
-            Log::error("Error while Force Deleting  the task  ".$e->getMessage());
-            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+        try {
+            // Find the task by ID
+            $task = Task::onlyTrashed()->findOrFail($id);
+            
+            $task->forceDelete();
+               
+                
         } catch (ModelNotFoundException $e) {
             Log::error('Task not found: ' . $e->getMessage());
             throw new HttpResponseException($this->error(null, 'Task not found', 404));
-        } 
+        } catch (Exception  $e) {
+            Log::error("Error while Force Deleting  the task  ".$e->getMessage());
+            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+        }
     }
 
     //..............................................................

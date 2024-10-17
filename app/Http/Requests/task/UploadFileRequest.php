@@ -36,7 +36,7 @@ class UploadFileRequest extends FormRequest
                            application/msword,
                            application/vnd.openxmlformats-officedocument.wordprocessingml.document' ,  
                 'max:5120',
-                //new ScanFile() //virus check
+                new ScanFile() //virus check
                 ]
             ];
     }
