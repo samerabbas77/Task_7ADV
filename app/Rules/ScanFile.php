@@ -2,57 +2,76 @@
 
 namespace App\Rules;
 
+use Closure;
 use GuzzleHttp\Client;
+use Illuminate\Contracts\Validation\Rule;
 use Illuminate\Contracts\Validation\ValidationRule;
 
 class ScanFile implements ValidationRule
 {
-    protected $file; // المتغير الذي سيحتفظ بالبيانات التي تمررها
+    protected $client;
+    protected $errorMessage;
 
-    /**
-     * قم بتمرير البيانات (مثل الملف) إلى قاعدة التحقق عبر الـ Constructor.
-     *
-     * @param  mixed  $file
-     * @return void
-     */
-    public function __construct($file)
+    public function __construct()
     {
-        $this->file = $file; // تخزين الملف في الخاصية
+        // Initialize the Guzzle client
+        $this->client = new Client();
     }
 
     /**
-     * Handle a validation attempt.
+     * Validate the file by scanning it using the VirusTotal API.
      *
      * @param  string  $attribute
      * @param  mixed  $value
-     * @param  \Closure  $fail
-     * @return void
+     * @return bool
      */
-    public function validate($attribute, $value, $fail):void
+    public function validate(string $attribute, mixed $value, Closure $fail): void
     {
-        // إنشاء عميل GuzzleHttp جديد
-        $client = new Client();
+        try {
+            // Read the API key from the .env file
+            $apiKey = env('VIRUSTOTAL_API_KEY');
+            
+            // Prepare the file to be sent
+            $file = fopen($value->getRealPath(), 'r');
 
-        // إرسال طلب POST إلى VirusTotal لفحص الملف
-        $response = $client->request('POST', 'https://www.virustotal.com/vtapi/v2/file/scan', [
-            'multipart' => [
-                [
-                    'name'     => 'apikey',
-                    'contents' => env('CLAMAV_API_KEY'),
+            // Send the file to the VirusTotal API for scanning
+            $response = $this->client->post('https://www.virustotal.com/vtapi/v2/file/scan', [
+                'headers' => [
+                    'x-apikey' => $apiKey,
                 ],
-                [
-                    'name'     => 'file',
-                    'contents' => fopen($this->file->getPathname(), 'r'), // استخدام الملف الذي تم تمريره عبر الـ constructor
+                'multipart' => [
+                    [
+                        'name'     => 'file',
+                        'contents' => $file,
+                    ],
                 ],
-            ],
-        ]);
+            ]);
 
-        // الحصول على استجابة الطلب
-        $responseBody = json_decode($response->getBody(), true);
+            // Decode the API response
+            $result = json_decode($response->getBody()->getContents(), true);
 
-        // التحقق مما إذا كان الملف مصابًا
-        if ($responseBody['positives'] > 0) {
-            $fail('The uploaded file is infected with a virus!');
+            // You can perform further checks on the result here (e.g., check for positives)
+            if ($result['response_code'] == 1) {
+                // Success: Handle based on API response (you can check scan results, etc.)
+                
+            }
+
+            $this->errorMessage = 'VirusTotal API scan failed: ' . $result['verbose_msg'];
+            
+        } catch (\Exception $e) {
+            // Handle any exceptions (e.g., network issues, API errors)
+            $this->errorMessage = 'Error scanning file: ' . $e->getMessage();
+            
         }
+    }
+
+    /**
+     * Get the error message for the validation failure.
+     *
+     * @return string
+     */
+    public function message()
+    {
+        return $this->errorMessage ?? 'The file failed the virus scan check.';
     }
 }

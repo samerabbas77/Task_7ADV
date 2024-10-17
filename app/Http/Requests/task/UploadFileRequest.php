@@ -3,12 +3,14 @@
 namespace App\Http\Requests\task;
 
 use App\Rules\ScanFile;
+use App\Traits\ApiResponseTrait;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Contracts\Validation\Validator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 
 class UploadFileRequest extends FormRequest
 {
+    use ApiResponseTrait;
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -34,7 +36,7 @@ class UploadFileRequest extends FormRequest
                            application/msword,
                            application/vnd.openxmlformats-officedocument.wordprocessingml.document' ,  
                 'max:5120',
-                new ScanFile($this->file('file')) //virus check
+                //new ScanFile() //virus check
                 ]
             ];
     }

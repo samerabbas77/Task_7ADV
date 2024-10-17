@@ -89,41 +89,41 @@ Route::group([
           //End of Task Api Route................................
 
           Route::get('/tasks?type=&status=&assigned_to=&due_date=&priority=&depends_on=',[TaskController::class,'getAllTaskswithFilters'])
-             ->middleware('task-list');
+             ->middleware('permission:task-list');
          
           Route::get('/tasks?status=Blocked',[TaskController::class,'getAllBluckedTasks()'])
-             ->middleware('task-list');
+             ->middleware('permission:task-list');
          
           //soft Delete
 
           Route::delete('/tasks/{task}/forceDelete',[TaskController::class,'forceDestroy'])
-             ->middleware('task_forceDelte');
+             ->middleware('permission:task_forceDelte');
 
           Route::get('/tasks/trashed',[TaskController::class,'trashed'])
-             ->middleware('task_trash');
+             ->middleware('permission:task_trash');
 
           Route::get('/tasks/{task}/restore',[TaskController::class,'restore'])
-             ->middleware('task_restore');
+             ->middleware('permission:task_restore');
 
           //.....End of soft Delete
 
           Route::put('/tasks/{task}/status',[TaskController::class,'updateStatus'])
-             ->middleware('update_status');
+             ->middleware('permission:update_status');
 
           Route::post('/tasks/{task}/assign',[TaskController::class,'assignTask'])
-             ->middleware('assign_task');
+             ->middleware('permission:assign_task');
 
           Route::put('/tasks/{task}/reAssign',[TaskController::class,'reAssignTask'])
-             ->middleware('reAssign_task');
+             ->middleware('permission:reAssign_task');
 
           Route::post('/tasks/{task}/attachments',[TaskController::class,'uploadAttachment'])
-             ->middleware('upload_attachment');
+             ->middleware('permission:upload_attachment');
 
           Route::post('/tasks/{task}/comments',[TaskController::class,'addComment'])
-             ->middleware('add_comment');
+             ->middleware('permission:add_comment');
 
           Route::get('/reports/daily-tasks',[TaskController::class,'taskReports'])
-             ->middleware('task_reports');
+             ->middleware('permission:task_reports');
  
           /**
            * role Routes
