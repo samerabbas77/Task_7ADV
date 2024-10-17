@@ -83,8 +83,14 @@ class UserServices
     public function getUser(User $user)
     {
         try {
-            $user = $user->load('assignedTasks')->first();
-            return $user;
+            if((auth('api')->id() == $user->id )|| (auth('api')->user()->role == 'Admin'))
+            {
+                $user = $user->load('assignedTasks')->first();
+                return $user;
+            }else{
+                return null;
+            }
+
         } catch (Exception $e) {
             Log::error("Error while fetch the user".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));

@@ -20,6 +20,7 @@ class PermissionTableSeeder extends Seeder
             'role-delete',
 
             'user-list',
+            'user-view',
             'user-create',
             'user-edit',
             'user-delete',
@@ -28,6 +29,7 @@ class PermissionTableSeeder extends Seeder
             'user_restore',
 
             'task-list',
+            'task-view',
             'task-create',
             'task-edit',
             'task-delete',

@@ -26,7 +26,8 @@ class TaskController extends Controller
     {
         $this->taskServices = $taskServices;
 
-        $this->middleware('permission:task-list',             ['only' => ['index','getAllTaskswithFilters','getAllBluckedTasks','show']]);
+        $this->middleware('permission:task-list',             ['only' => ['index','getAllTaskswithFilters','getAllBluckedTasks']]);
+        $this->middleware('permission:task-view',             ['only' => ['show']]);
         $this->middleware('permission:task-create',           ['only' => ['store']]);
         $this->middleware('permission:task-edit',             ['only' => ['update']]);
         $this->middleware('permission:task-delete',           ['only' => ['destroy']]);
@@ -96,7 +97,13 @@ class TaskController extends Controller
      */
     public function show(Task $task)
     {
-        return $this->success(new TaskResource($task), 'Show task Successfully', 200);
+        if((auth('api')->id() == $task->assigned_to) || (auth('api')->user()->role == 'Admin'))
+        {
+            return $this->success(new TaskResource($task), 'Show task Successfully', 200);
+        }else{
+            return $this->error('You are not authorized to view this task', 401);
+        }
+        
     }
 
     /**

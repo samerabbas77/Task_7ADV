@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\RoleController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\TaskController;
@@ -38,16 +39,16 @@ Route::group([
           Route::get('/user', [UserController::class, 'index'])
               ->middleware('permission:user-list');
           
-          Route::get('/user/{id}', [UserController::class, 'show'])
-              ->middleware('permission:user-list');
+          Route::get('/user/{user}', [UserController::class, 'show'])
+              ->middleware('permission:user-view');
           
           Route::post('/user', [UserController::class, 'store'])
               ->middleware('permission:user-create');
           
-          Route::put('/user/{id}', [UserController::class, 'update'])
+          Route::put('/user/{user}', [UserController::class, 'update'])
               ->middleware('permission:user-edit');
           
-          Route::delete('/user/{id}', [UserController::class, 'destroy'])
+          Route::delete('/user/{user}', [UserController::class, 'destroy'])
               ->middleware('permission:user-delete');
 
         //End of User Api routes.....................
@@ -73,35 +74,35 @@ Route::group([
           Route::get('/tasks', [TaskController::class, 'index'])
               ->middleware('permission:task-list');
 
-          Route::get('/tasks/{id}', [TaskController::class, 'show'])
-              ->middleware('permission:task-list');
+          Route::get('/tasks/{task}', [TaskController::class, 'show'])
+              ->middleware('permission:task-view');
 
           Route::post('/tasks', [TaskController::class, 'store'])
               ->middleware('permission:task-create');
 
-          Route::put('/tasks/{id}', [TaskController::class, 'update'])
+          Route::put('/tasks/{task}', [TaskController::class, 'update'])
               ->middleware('permission:task-edit');
 
-          Route::delete('/tasks/{id}', [TaskController::class, 'destroy'])
+          Route::delete('/tasks/{task}', [TaskController::class, 'destroy'])
               ->middleware('permission:task-delete');
 
           //End of Task Api Route................................
 
-          Route::get('tasks?type=&status=&assigned_to=&due_date=&priority=&depends_on=',[TaskController::class,'getAllTaskswithFilters'])
+          Route::get('/tasks?type=&status=&assigned_to=&due_date=&priority=&depends_on=',[TaskController::class,'getAllTaskswithFilters'])
              ->middleware('task-list');
          
-          Route::get('tasks?status=Blocked',[TaskController::class,'getAllBluckedTasks()'])
+          Route::get('/tasks?status=Blocked',[TaskController::class,'getAllBluckedTasks()'])
              ->middleware('task-list');
          
           //soft Delete
 
-          Route::delete('tasks/{task}/forceDelete',[TaskController::class,'forceDestroy'])
+          Route::delete('/tasks/{task}/forceDelete',[TaskController::class,'forceDestroy'])
              ->middleware('task_forceDelte');
 
-          Route::get('tasks/trashed',[TaskController::class,'trashed'])
+          Route::get('/tasks/trashed',[TaskController::class,'trashed'])
              ->middleware('task_trash');
 
-          Route::get('tasks/{task}/restore',[TaskController::class,'restore'])
+          Route::get('/tasks/{task}/restore',[TaskController::class,'restore'])
              ->middleware('task_restore');
 
           //.....End of soft Delete
@@ -124,5 +125,24 @@ Route::group([
           Route::get('/reports/daily-tasks',[TaskController::class,'taskReports'])
              ->middleware('task_reports');
  
+          /**
+           * role Routes
+           */
+
+            Route::get('/role', [RoleController::class, 'index'])
+               ->middleware('permission:role-list');
+
+            Route::get('/role/{id}', [RoleController::class, 'show'])
+              ->middleware('permission:role-list');
+
+            Route::post('/role', [RoleController::class, 'store'])
+               ->middleware('permission:role-create');
+
+            Route::put('/role/{id}', [RoleController::class, 'update'])
+               ->middleware('permission:role-edit');
+
+            Route::delete('/role/{id}', [RoleController::class, 'destroy'])
+               ->middleware('permission:role-delete');
+
 
         });

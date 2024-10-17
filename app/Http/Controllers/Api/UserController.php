@@ -18,7 +18,8 @@ class UserController extends Controller
     public function __construct(UserServices $userServices)
     {
         $this->userServices = $userServices;
-        $this->middleware( 'permission:user-list',            ['only' => ['index','getUsersWithAssignedTasks','show']]);
+        $this->middleware( 'permission:user-list',            ['only' => ['index','getUsersWithAssignedTasks']]);
+        $this->middleware( 'permission:user-view',            ['only' => ['show']]);
         $this->middleware('permission:user-create',           ['only' => ['store']]);
         $this->middleware('permission:user-edit',             ['only' => ['update']]);
         $this->middleware('permission:user-delete',           ['only' => ['destroy']]);
@@ -69,7 +70,12 @@ class UserController extends Controller
     public function show(User $user)
     {
         $user = $this->userServices->getUser( $user);
-        return $this->success(new UserResource($user),'Show user Successfully',200);
+        if($user)
+        {
+            return $this->success(new UserResource($user),'Show user Successfully',200);
+        }else{
+            return $this->error('ou are not authorized to view this user',404);
+        }
 
     }
 

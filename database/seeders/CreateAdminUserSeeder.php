@@ -16,17 +16,19 @@ class CreateAdminUserSeeder extends Seeder
     public function run(): void
     {
         $user = User::create([
-            'name' => 'Hardik Savani', 
+            'firstName' => 'Ayham' ,
+            'lastName'  => 'ibrahim', 
             'email' => 'admin@gmail.com',
-            'password' => bcrypt('123456')
+            'password' => bcrypt('12345678'),
+            'role'    => 'Admin'
         ]);
     
         $role = Role::create(['name' => 'Admin']);
      
-        $permissions = Permission::pluck('id','id')->all();
+        $permissions = Permission::all();
    
         $role->syncPermissions($permissions);
      
-        $user->assignRole([$role->id]);
+        $user->assignRole($role);
     }
 }
