@@ -18,11 +18,8 @@ class RoleSeeder extends Seeder
     
         // Define the specific permissions you want to assign
         $permissions = [
-            'user-list',
-            'borrow-list',
-            'rating-list',
-            'user-edit',
-            'user-delete'
+            'user-view',
+            'task-view',
         ];
         
         // Fetch only these specific permissions
