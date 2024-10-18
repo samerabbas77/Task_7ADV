@@ -4,9 +4,10 @@ namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 
+use App\Models\Task;
 use Spatie\Permission\Traits\HasRoles;
+
 use Illuminate\Notifications\Notifiable;
-use Illuminate\Console\View\Components\Task;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Contracts\Auth\MustVerifyEmail;
 use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
@@ -81,7 +82,7 @@ class User extends Authenticatable implements JWTSubject
      */
     public function assignedTasks()
     {
-        return $this->hasMany(Task::class,'assigned_to','id');
+        return $this->hasMany(Task::class, 'assigned_to','id');
     }
    
     //................Acceccor...........................
@@ -95,16 +96,6 @@ class User extends Authenticatable implements JWTSubject
         return "{$this->firstName} {$this->lastName}" ;
     }
 
-    //...................Mutators.............................
-    /**
-     * set the role manully not in mass assignment
-     * @param mixed $value
-     * @return void
-     */
-    // public function setRoleAttribute($value)
-    // {
-    //     $this->attributes['role'] = $value;
-    // }
 
     //...................filter Scope............................
 

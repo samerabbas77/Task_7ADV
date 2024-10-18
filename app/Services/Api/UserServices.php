@@ -37,9 +37,11 @@ class UserServices
     public function getUsersWithAssignedTasks(string $perPage,$status =null,$priority =null)
     {
         try {
+           // $users = User::with('assignedTasks')->;
+           // dd($users);
             $users = User::with('assignedTasks')
                         ->filterTasks($status,$priority)
-                        ->paginate($perPage);  
+                        ->paginate($perPage);
             return $users;
         } catch (Exception $e) {
             Log::error("Error while fetch the users".$e->getMessage());
