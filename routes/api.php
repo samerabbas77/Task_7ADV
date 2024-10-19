@@ -143,6 +143,5 @@ Route::group([
 
             Route::delete('/role/{id}', [RoleController::class, 'destroy'])
                ->middleware('permission:role-delete');
-
-            Route::get('/test/{id}',[TaskController::class,'test']);
+         
         });

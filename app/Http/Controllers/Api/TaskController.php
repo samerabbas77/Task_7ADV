@@ -2,15 +2,17 @@
 
 namespace App\Http\Controllers\Api;
 
+
 use App\Models\Task;
-use App\Models\Attachment;
+
 use Illuminate\Http\Request;
 use App\Jobs\SaveDailyRepports;
 use App\Traits\ApiResponseTrait;
+
 use App\Services\Api\TaskServices;
 use App\Http\Controllers\Controller;
 use App\Http\Resources\TaskResource;
-use Illuminate\Support\Facades\Storage;
+
 use App\Http\Requests\task\AddCommentRequest;
 use App\Http\Requests\task\AssignTaskRequest;
 use App\Http\Requests\task\StoreTaskRequest; 
@@ -221,34 +223,7 @@ class TaskController extends Controller
     }
 
     //..........................
-    public function test(string $id)
-    {
-        $task = Task::find(2) ;
-        dd($task->taskStatus);
-        if ($task->attachments()->withTrashed()->exists()) 
-        {
-            $attachments = $task->attachments()->withTrashed()->get();
-            // Delete attachments from storage before force deleting them from the database
-            foreach ($attachments as $attachment) 
-            {
-                // Assuming 'file_path' is the field in your attachments table that stores the file path
-                dd('public/'.$attachment->file_path);
-                Storage::delete( 'public/'.$attachment->file_path);
-                
-            }
-            $task->attachments()->forceDelete();
-            dd($task->attachments()->withTrashed()->count());
-            //force delete get all task 1 attachment only trash and force delete thiem
-            // $deletedataachments = Attachment::onlyTrashed()
-            //                                 ->where('attachable_id',$task->id)
-            //                                 ->get();
-            // foreach($deletedataachments as $deletedataachment)
-            // {
-            //     //dd('public/'.$deletedataachment->file_path);                                
-            //     Storage::delete('public/'.$deletedataachment->file_path);
-       }
-
-    }
+ 
 
 }
 

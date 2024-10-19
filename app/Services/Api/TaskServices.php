@@ -2,15 +2,16 @@
 
 namespace App\Services\Api;
 
-use App\Models\Attachment;
 use Exception;
 use App\Models\Task;
 use App\Models\User;
+use App\Models\Attachment;
 use App\Models\TaskStatus;
 use Illuminate\Support\Str;
 use App\Models\DependencyTask;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -479,6 +480,20 @@ class TaskServices
     public function  storeFile($file,$task)
     {
         try {
+            $message = '';
+
+            // Scan the file
+            $scanResult = $this->scanFile($file);
+            
+            // Check scan results for malicious content
+            if (isset($scanResult['data']['attributes']['last_analysis_stats'])) {
+                $maliciousCount = $scanResult['data']['attributes']['last_analysis_stats']['malicious'] ?? 0;
+                if ($maliciousCount > 0) {
+                    throw new Exception('File contains a virus!', 400);
+                }
+            } else {
+                $message = 'Scan completed successfully, no virus found :)';
+            }
 
             $originalName = $file->getClientOriginalName();
 
@@ -527,7 +542,7 @@ class TaskServices
                 'file_type' => $mimeType
             ]);
 
-            return $uploadedFile;
+            return ['attachment' => $uploadedFile, 'message' => $message];
 
 
         }catch (Exception $e) {
@@ -538,6 +553,83 @@ class TaskServices
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
         }
     }
+
+    //...............................................Scan files............................................................................
+    //...................................................................................................
+
+    /**
+     * Scan file from virus
+     * @param mixed $filePath
+     * @throws \Exception
+     * @return mixed
+     */
+    public function scanFile($filePath)
+    {
+        $url = 'https://www.virustotal.com/api/v3/files';
+
+        $apiKey = env('VIRUSTOTAL_API_KEY');
+        // Upload the file to VirusTotal
+        $response = Http::withHeaders([
+            'x-apikey' => $apiKey,
+        ])->attach('file', fopen($filePath, 'r'), basename($filePath))->post($url);
+            
+        // Check if the file was uploaded successfully
+        if ($response->successful()) {
+            
+            // Extract the analysis ID from the response
+            $analysisId = $response->json()['data']['id'];
+            return $this->pollScanResult($analysisId);
+        } else {
+            Log::error('VirusTotal API error:', [
+                'status' => $response->status(),
+                'response' => $response->json(),
+            ]);
+            throw new Exception('Failed to scan file: ' . $response->body(), $response->status());
+        }
+    }
+
+    //......................
+    /**
+     * repeat the scan yo make sure we have sured reslut
+     * @param mixed $analysisId
+     * @throws \Exception
+     * @return mixed
+     */
+    public function pollScanResult($analysisId)
+    {
+        $url = "https://www.virustotal.com/api/v3/analyses/{$analysisId}";
+        $apiKey = env('VIRUSTOTAL_API_KEY');
+        $maxAttempts = 10;
+        $attempt = 0;
+
+        // Poll every 10 seconds for the result until the scan is complete
+        do {
+         
+            sleep(10); // wait 10 seconds between polling
+
+            $response = Http::withHeaders([
+                'x-apikey' => $apiKey,
+            ])->get($url);
+
+            $scanResult = $response->json();
+         
+            // Check if the scan is completed
+            if (isset($scanResult['data']['attributes']['status']) && $scanResult['data']['attributes']['status'] === 'completed') {
+                return $scanResult;
+            }
+            
+
+            $attempt++;
+        } while ($attempt < $maxAttempts);
+
+        throw new Exception('Scan timeout or failed to complete after polling.');
+    }
+
+
+    //..................................................End Scan.....................................................................
+    //..................................................................................................................
+
+
 
     //...............................Add Comments....................................
     //...............................................................................
