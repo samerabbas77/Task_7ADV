@@ -134,24 +134,33 @@ class Task extends Model
     parent::boot();
 
     static::deleting(function ($task) {
-        if ($task->isForceDeleting()) {
-            // Force delete related models
-            if ($task->taskStatus()) {
-                $task->taskStatus()->forceDelete();
-            }
-            if ($task->comments()) {
-                $task->comments()->forceDelete();
-            }
-            if ($task->attachments()) {
-                // Delete attachments from storage before force deleting them from the database
-                foreach ($task->attachments as $attachment) {
-                    // Assuming 'file_path' is the field in your attachments table that stores the file path
-                    dd($attachment->file_path);
-                    Storage::delete( 'Uploads/'.$attachment->file_name);
-                    
+        if ($task->isForceDeleting()) 
+        {
+            
+                // Force delete related models
+                if ($task->taskStatus()->withTrashed()->exists()) 
+                {
+                    $task->taskStatus()->withTrashed()->forceDelete();
                 }
-                $task->attachments()->forceDelete();
-            }
+                if ($task->comments()->withTrashed()->exists()) 
+                {
+                    $task->comments()->forceDelete();
+                }
+                
+                if ($task->attachments()->withTrashed()->exists()) 
+                {
+                    $attachments = $task->attachments()->withTrashed()->get();
+                    // Delete attachments from storage before force deleting them from the database
+                    foreach ($attachments as $attachment) 
+                    {
+                        // Assuming 'file_path' is the field in your attachments table that stores the file path
+                       
+                        Storage::delete( 'public/'.$attachment->file_path);
+                        
+                    }
+                    $task->attachments()->forceDelete();
+          
+                }
     
             // Force delete pivot table records (DependencyTask)
             DependencyTask::where('task_id', $task->id)
@@ -159,13 +168,16 @@ class Task extends Model
                           ->forceDelete();
         } else {
             // Soft delete related models
-            if ($task->taskStatus()) {
+            if ($task->taskStatus()->exists()) 
+            {
                 $task->taskStatus()->delete();
             }
-            if ($task->comments()) {
+            if ($task->comments()->exists()) 
+            {
                 $task->comments()->delete();
             }
-            if ($task->attachments()) {
+            if ($task->attachments()->exists()) 
+            {
                 $task->attachments()->delete();
             }
     
