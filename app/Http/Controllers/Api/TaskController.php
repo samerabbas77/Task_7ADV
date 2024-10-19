@@ -223,8 +223,8 @@ class TaskController extends Controller
     //..........................
     public function test(string $id)
     {
-        $task = Task::onlyTrashed()->find(1) ;
-        $task->taskStatus();
+        $task = Task::find(2) ;
+        dd($task->taskStatus);
         if ($task->attachments()->withTrashed()->exists()) 
         {
             $attachments = $task->attachments()->withTrashed()->get();

@@ -128,7 +128,11 @@ class Task extends Model
     }
 
     //...........................................Delete task .......................................
-
+    /**
+     * before force delete the task delete all its attacments(in database and in lical storage) and status and comments
+     * before restore the task restore all his comments , status and attacments on database
+     * @return void
+     */
     protected static function boot()
 {
     parent::boot();
@@ -188,7 +192,12 @@ class Task extends Model
         }
     });
     
-    
+    static::restoring(function ($task) {
+        $task->taskStatus()->withTrashed()->restore();
+        $task->comments()->withTrashed()->restore();
+        $task->attachments()->withTrashed()->restore();
+    });
+
 }
 
 
