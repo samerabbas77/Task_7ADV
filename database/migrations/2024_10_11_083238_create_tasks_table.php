@@ -19,7 +19,7 @@ return new class extends Migration
             $table->enum('status',['Open','In_Progress', 'Completed', 'Blocked'])->nullable();
             $table->enum('priority',['high','medium','low']);
             $table->date('due_date');   
-            $table->foreignId('assigned_to')->constrained('users')->onDelete('cascade')->onUpdate('cascade');
+            $table->foreignId('assigned_to')->nullable()->constrained('users')->onDelete('cascade')->onUpdate('cascade');
             $table->softDeletes();
             $table->timestamps();
         });

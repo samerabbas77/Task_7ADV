@@ -121,9 +121,9 @@ class TaskController extends Controller
     }
 
     //....................................Soft Delete..................................................
-    /**
-     * Remove the specified resource from storage.
-     */
+    //.................................................................................................
+
+
     //............Soft Delete....
     public function destroy(Task $task)
     {    

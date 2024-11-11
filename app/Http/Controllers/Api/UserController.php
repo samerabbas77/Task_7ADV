@@ -117,7 +117,7 @@ class UserController extends Controller
     public function restore(string $id)
     {
         $user = $this->userServices->restoreUser($id);
-        return $this->successResponse(new UserResource($user), "User restored Successfully");
+        return $this->success(new UserResource($user), "User restored Successfully");
     }
 
 
@@ -128,7 +128,7 @@ class UserController extends Controller
      public function forceDelete(string $id)
      {
         $this->userServices->forceDeleteUser($id);
-        return $this->successResponse(null, "User Permanently deleted Successfully");
+        return $this->success(null, "User Permanently deleted Successfully");
 
      }
 }

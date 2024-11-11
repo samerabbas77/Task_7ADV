@@ -373,6 +373,7 @@ class TaskServices
                     $dependconMeTask->update(['status' => 'Blocked']);
                 }
             }
+            $task->update(['status' => $validated['status']]);
             return true;
 
         } catch (Exception $e) {
@@ -426,7 +427,7 @@ class TaskServices
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
         }catch (Exception $e) {
             Log::error("Error while assigned  the task to the user :".$e->getMessage());
-            throw new HttpResponseException($this->error(null, 'there is something wrong in server'.$e, 500));
+            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
         }
 
     } 
@@ -547,7 +548,7 @@ class TaskServices
 
         }catch (Exception $e) {
             Log::error("Error while uploading file to Attachment table :".$e->getMessage());
-            throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
+            throw new HttpResponseException($this->error(null, 'there is something wrong in server'.$e->getMessage(), 500));
         }catch (ModelNotFoundException $e) {
             Log::error("Task Not Found".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));

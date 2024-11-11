@@ -27,7 +27,7 @@ Route::group([
          //Authentecation
          Route::post('/logout', [AuthController::class, 'logout']);
          Route::post('/refresh', [AuthController::class, 'refresh']);
-         Route::post('/me', [AuthController::class, 'info']);
+         Route::get('/me', [AuthController::class, 'info']);
 
                /**
          * User Management Routes for admin
@@ -56,8 +56,8 @@ Route::group([
           Route::get('Users/assigned-tasks', [UserController::class, 'getUsersWithAssignedTasks'])
               ->middleware('permission:user-list');  
 
-          Route::get('/user-trash',[UserController::class,'trashed'])
-              ->middleware('permission:user_trash');
+          Route::get('/user-trash',[UserController::class,'trashed']);
+              //->middleware('permission:user_trash');
 
           Route::post('/user/restore/{id}',[UserController::class,'restore'])
               ->middleware('permission:user_restore');

@@ -14,7 +14,8 @@ class TaskResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
-        $full_name = "{$this->firstName} {$this->lastName}";
+        $this->assigned_to ? $full_name ="{$this->assignedUser->firstName} {$this->assignedUser->lastName}" : $full_name ="Not Assigned to anyOne ";
+       
         return
         [
             'title'           =>  $this->title,            
