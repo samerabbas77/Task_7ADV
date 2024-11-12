@@ -2,13 +2,16 @@
 
 namespace App\Jobs;
 
+use Carbon\Carbon;
+use App\Models\User;
+use App\Models\LogReport;
 use Illuminate\Bus\Queueable;
+use App\Mail\TaskReminderMail;
+use Illuminate\Support\Facades\Mail;
+use Illuminate\Queue\SerializesModels;
+use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
-use Illuminate\Queue\InteractsWithQueue;
-use Illuminate\Queue\SerializesModels;
-use App\Models\LogReport;
-use Carbon\Carbon;
 
 class SaveDailyRepports implements ShouldQueue
 {
@@ -27,34 +30,25 @@ class SaveDailyRepports implements ShouldQueue
      */
     public function handle(): void
     {
+         // Set the target due date to two days before the current date
+         $targetDate = Carbon::now()->subDays(2);
 
-        $logFile = storage_path('logs/laravel.log');
-        $logLines = file($logFile, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
+         // Find all users with tasks that meet the criteria
+         $users = User::whereHas('assignedTasks', function ($query) use ($targetDate) {
+             $query->whereIn('status', ['Open', 'In_Progress'])
+                    ->whereDate('due_date', '=', $targetDate);
+                    })->with(['assignedTasks' => function ($query) use ($targetDate) {
+                        $query->whereIn('status', ['Open', 'In_Progress'])
+                            ->whereDate('due_date', '=', $targetDate);
+                    }])->get();
+    
+         // Send the email to each user
+         foreach ($users as $user) {
+             $tasks = $user->tasks;
+             Mail::to($user->email)->send(new TaskReminderMail($user, $tasks));
+         }
+     }
+  
 
-        foreach ($logLines as $line) 
-        {
-            // suppose the line is this style:
-
-            // [2024-10-16 10:32:45] local.INFO: This is an info message
-            
-            // extract the Date
-            preg_match('/\[(.*?)\]/', $line, $dateMatch);
-            $date = isset($dateMatch[1]) ? Carbon::parse($dateMatch[1]) : null;
-
-            // extract type (info, error, warning, etc)
-            preg_match('/\.([A-Z]+):/', $line, $typeMatch);
-            $type = isset($typeMatch[1]) ? strtolower($typeMatch[1]) : 'unknown';
-
-            // extract message details
-            $details = substr($line, strpos($line, ':') + 2);    
-
-            // save the data in the database
-            LogReport::create([
-                'details' => $details,
-                'date' => $date,
-                'type' => $type,
-            ]);
-        }
-
-    }
+   
 }
