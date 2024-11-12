@@ -33,7 +33,7 @@ class ReoprtServices
         return $report;     
     } catch (Exception $e) {
         Log::error("Error while fetch the Completed Reports".$e->getMessage());
-        throw new HttpResponseException($this->error(null, 'there is something wrong in server'.$e->getMessage(), 500));
+        throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
     }
 }
 

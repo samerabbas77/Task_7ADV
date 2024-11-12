@@ -12,6 +12,7 @@ use App\Models\DependencyTask;
 use App\Traits\ApiResponseTrait;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -22,16 +23,21 @@ class TaskServices
 {
     use ApiResponseTrait;
     /**
-     *  get All Tasks
+     *  getAllTasks
      * @param mixed $perPage
      * @throws \Illuminate\Http\Exceptions\HttpResponseException
-     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
+     * @return void
      */
     public function getAllTasks($perPage)
     { 
         try {
-            $tasks = Task::paginate($perPage);
-            return $tasks;
+            return Cache::remember('getAllTasks',3600,  function () use($perPage)
+             {
+                $tasks = Task::paginate($perPage);
+                return $tasks;
+            });
+            
+            
         } catch (Exception $e) {
             Log::error("Error while fetch the tasks".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
@@ -55,10 +61,17 @@ class TaskServices
     public function getAllTasksFiltersBy($perPage,$type =null,$status = null,$dueDate = null,$priority = null,$assigned_to = null,$dependce_on=null)
     {
         try {
-            $query = Task::query()
-                          ->TasksFilterbyAll($type,$status,$dueDate,$priority,$assigned_to,$dependce_on);
-                          
-            return $query->paginate($perPage);
+            $cacheKey = "getAllTasksFilterBy_{$type}_{$status}_{$dueDate}_{$priority}_{$assigned_to}_{$dependce_on}_{$perPage}";
+
+            return Cache::remember($cacheKey,3600,function() 
+            use($type,$status,$dueDate,$priority,$assigned_to,$dependce_on,$perPage)
+            {
+                $query = Task::query()
+                ->TasksFilterbyAll($type,$status,$dueDate,$priority,$assigned_to,$dependce_on);
+                
+                 return $query->paginate($perPage);
+            });
+
         } catch (Exception $e) {
             Log::error("Error while fetch the tasks".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
@@ -71,9 +84,13 @@ class TaskServices
     public function getAllBluckedTasks()
     {
         try {
-            $query = Task::query()
-                            ->TasksFilterbyAll(null, 'Blocked',null, null, null);
-            return $query->paginate();
+            return Cache::remember("getAllBluckedTasks",3600,function() 
+            {
+                $query = Task::query()
+                ->TasksFilterbyAll(null, 'Blocked',null, null, null);
+                return $query->paginate();
+            });
+
         } catch (Exception $e) {
             Log::error("Error while fetch the blocked tasks".$e->getMessage());
             throw new HttpResponseException($this->error(null, 'there is something wrong in server', 500));
@@ -100,6 +117,9 @@ class TaskServices
                 'due_date'      => $data['due_date'], 
                 'status'        => $data['status']             
              ]);
+             Cache::forget("getAllTasks");
+             Cache::forget("getallTaksfilterBy");
+             Cache::forget("getAllBluckedTasks");
              //set the dependency for this task
              if(!empty($data['task_dependency']))
              {
@@ -154,6 +174,11 @@ class TaskServices
              $task->due_date = $data['due_date']?? $task->due_date;
 
              $task->save();
+
+             Cache::forget("getAllTasks");
+             Cache::forget("getallTaksfilterBy");
+             Cache::forget("getAllBluckedTasks");
+
             //set the dependency for this task
             if(!empty($data['task_dependency']))
             {
