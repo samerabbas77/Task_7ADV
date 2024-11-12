@@ -11,11 +11,15 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('log_reports', function (Blueprint $table) {
+        Schema::create('reports', function (Blueprint $table) {
             $table->id();
             $table->text('details');  
             $table->timestamp('date');   
-            $table->string('type');
+            $table->enum('type',[
+                'Completed',
+                'UnCompleted'
+            ]);
+            $table->string('created_by');
 
             $table->timestamps();
         });
@@ -26,6 +30,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('log_reports');
+        Schema::dropIfExists('reports');
     }
 };

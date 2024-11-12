@@ -42,7 +42,11 @@ class PermissionTableSeeder extends Seeder
             'reAssign_task',
             'upload_attachment',
             'add_comment',
-            'task_reports'
+            'task_reports',
+
+            'report-complete',
+            'report-Uncomplete',
+            'report-filter'
 
          ];
         foreach ($permissions as $permission) {

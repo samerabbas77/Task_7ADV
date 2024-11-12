@@ -1,11 +1,13 @@
 <?php
 
-use App\Http\Controllers\Api\RoleController;
+use GuzzleHttp\Middleware;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\RoleController;
 use App\Http\Controllers\Api\TaskController;
 use App\Http\Controllers\Api\UserController;
 use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Api\ReportController;
 
 /*
 |--------------------------------------------------------------------------
@@ -143,5 +145,16 @@ Route::group([
 
             Route::delete('/role/{id}', [RoleController::class, 'destroy'])
                ->middleware('permission:role-delete');
-         
-        });
+
+  
+         /**
+          * Report Routes
+          */
+
+            Route::post('/complete-report',[ReportController::class,'create_Complete_Task_Report'])
+                ->Middleware('permission:report-complete');
+            Route::post('/Uncomplete-report',[ReportController::class,'create_UnCompleted_Task_Report'])
+                ->Middleware('permission:report-Uncomplete');
+            Route::get('/filter-complete-report',[ReportController::class,'getReportsByfilters'])
+                ->Middleware('permission:report-filter');;
+            });
