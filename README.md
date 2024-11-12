@@ -1,70 +1,214 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# Advanced Task Management API
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+## Overview
+The Advanced Task Management API is designed to facilitate comprehensive task management with features like real-time notifications, task dependencies, and robust security measures. This API enables handling multiple task types, managing task dependencies, and generating performance analytics through periodic reports. Key functionalities include advanced authentication, protection against common security threats, and fine-grained user role and permission management.
 
-## About Laravel
+---
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## Requirements
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### Models
+1. **Task**
+   - Fields: `title`, `description`, `type` (`Bug`, `Feature`, `Improvement`), `status` (`Open`, `In Progress`, `Completed`, `Blocked`), `priority` (`Low`, `Medium`, `High`), `due_date`, `assigned_to` (User ID).
+   
+2. **Comment**
+   - Polymorphic relationship with Task to store task-related comments.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+3. **Attachment**
+   - Polymorphic relationship to handle file attachments associated with tasks.
 
-## Learning Laravel
+4. **TaskStatusUpdate**
+   - Tracks changes in task status with a `hasMany` relationship to Task.
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+5. **User**
+   - Manages task assignments and connects tasks with users via a `belongsTo` relationship.
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+6. **Role**
+   - Manages user permissions by defining specific roles for each user.
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains over 2000 video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+---
 
-## Laravel Sponsors
+### API Endpoints
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the Laravel [Patreon page](https://patreon.com/taylorotwell).
+| Endpoint | Description |
+|----------|-------------|
+| `POST /api/tasks` | Create a new task. |
+| `PUT /api/tasks/{id}/status` | Update the status of a task. |
+| `PUT /api/tasks/{id}/reassign` | Reassign a task to a different user. |
+| `POST /api/tasks/{id}/comments` | Add a comment to a task. |
+| `POST /api/tasks/{id}/attachments` | Attach a file to a task. |
+| `GET /api/tasks/{id}` | View task details. |
+| `GET /api/tasks` | View all tasks with advanced filters (e.g., type, status, assigned_to, etc.). |
+| `POST /api/tasks/{id}/assign` | Assign a task to a user. |
+| `GET /api/reports/daily-tasks` | Generate a daily task report. |
+| `GET /api/tasks?status=Blocked` | View delayed tasks blocked due to dependencies. |
 
-### Premium Partners
+---
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Cubet Techno Labs](https://cubettech.com)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[Many](https://www.many.co.uk)**
-- **[Webdock, Fast VPS Hosting](https://www.webdock.io/en)**
-- **[DevSquad](https://devsquad.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[OP.GG](https://op.gg)**
-- **[WebReinvent](https://webreinvent.com/?utm_source=laravel&utm_medium=github&utm_campaign=patreon-sponsors)**
-- **[Lendio](https://lendio.com)**
+### Security & Protection
 
-## Contributing
+1. **JWT Authentication**
+   - Uses JSON Web Token (JWT) for secure API authentication, preventing unauthorized access.
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+2. **Rate Limiting**
+   - Implements request rate limiting to protect against DDoS attacks.
 
-## Code of Conduct
+3. **CSRF Protection**
+   - Ensures API is protected from Cross-Site Request Forgery (CSRF) attacks.
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+4. **XSS and SQL Injection Protection**
+   - Utilizes Laravel's built-in protections to sanitize user data and prevent XSS and SQL injection attacks.
 
-## Security Vulnerabilities
+5. **Permission-based Authorization**
+   - Uses Role model for managing user permissions, allowing only authorized users to perform specific actions (e.g., task assignment, status updates).
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+---
 
-## License
+### Advanced Features
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+1. **Task Dependencies**
+   - Uses a `task_dependencies` table to store task dependencies. Tasks are automatically set to `Blocked` if they depend on an incomplete task.
+
+2. **Automatic Reassignment**
+   - Upon completion of a task with dependencies, any dependent tasks are automatically unblocked if all conditions are met.
+
+3. **Performance Analysis & Task Management**
+   - Uses Job Queues for improved system performance, especially when handling a large number of tasks or users (e.g., scheduling daily performance reports in the background).
+
+4. **Error Handling**
+   - Implements error logging to capture and store information on API errors for later analysis.
+
+---
+
+### Attachment Management
+
+1. **Secure File Handling**
+   - Ensures secure storage and encryption of attachments on the server.
+
+2. **File Validation**
+   - Implements file validation (e.g., virus scanning with external services if available).
+
+---
+
+### Database Performance Optimization
+
+1. **Caching**
+   - Caches frequently queried tasks to enhance response times.
+
+2. **Database Indexing**
+   - Uses database indexing to speed up search and filter queries.
+
+---
+
+### Error Reporting and Management
+
+1. **Custom Exception Handling**
+   - Provides clear error messages for users and stores error information for system administrators.
+
+2. **Error Logging**
+   - Stores errors in dedicated tables for analysis, improving application performance over time.
+
+---
+
+### Additional Features
+
+1. **Report Types**
+   - Provides an API interface for generating various report types (e.g., completed tasks, delayed tasks, tasks by user) with advanced filtering options.
+
+2. **Soft Delete with Recovery**
+   - Supports soft deletion and recovery of tasks, maintaining historical data.
+
+---
+Routes Configuration
+To use the routes for the API endpoints, add the following code to your api.php routes file:
+
+php
+Copy code
+<?php
+
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Api\RoleController;
+use App\Http\Controllers\Api\TaskController;
+use App\Http\Controllers\Api\UserController;
+use App\Http\Controllers\Auth\AuthController;
+use App\Http\Controllers\Api\ReportController;
+
+Route::post('/login', [AuthController::class, 'login']);
+
+Route::group([
+    'middleware' => ['auth:api', 'throttle:60,1','security_middleware']
+], function () {
+    Route::post('/logout', [AuthController::class, 'logout']);
+    Route::post('/refresh', [AuthController::class, 'refresh']);
+    Route::get('/me', [AuthController::class, 'info']);
+
+    // User Management Routes
+    Route::apiResource('/user', UserController::class);
+    Route::post('/user/restore/{id}', [UserController::class, 'restore']);
+    Route::delete('/user/force/{id}', [UserController::class, 'forceDelete']);
+
+    // Task Routes
+    Route::apiResource('/tasks', TaskController::class);
+    Route::put('/tasks/{task}/status', [TaskController::class, 'updateStatus']);
+    Route::post('/tasks/{task}/assign', [TaskController::class, 'assignTask']);
+    Route::put('/tasks/{task}/reAssign', [TaskController::class, 'reAssignTask']);
+    Route::post('/tasks/{task}/attachments', [TaskController::class, 'uploadAttachment']);
+    Route::post('/tasks/{task}/comments', [TaskController::class, 'addComment']);
+    Route::get('/reports/daily-tasks', [TaskController::class, 'taskReports']);
+
+    // Role Routes
+    Route::apiResource('/role', RoleController::class);
+
+    // Report Routes
+    Route::post('/complete-report', [ReportController::class, 'create_Complete_Task_Report']);
+    Route::post('/Uncomplete-report', [ReportController::class, 'create_UnCompleted_Task_Report']);
+    Route::get('/filter-complete-report', [ReportController::class, 'getReportsByfilters']);
+});
+
+### Testing
+For testing the API, you can use both unit and feature tests in Laravel:
+
+Setup PHPUnit:
+
+In your project root, set up your .env.testing file with database configurations for testing.
+Run migrations: php artisan migrate --env=testing.
+Writing Tests:
+
+Unit Tests: Test individual model and service functionality.
+Feature Tests: Test the routes and endpoints to ensure they are functioning correctly.
+Example Feature Test:
+
+Here is a basic example for testing the task creation endpoint:
+
+public function testCreateTask()
+{
+    $response = $this->actingAs($user, 'api')
+        ->postJson('/api/tasks', [
+            'title' => 'New Task',
+            'description' => 'Description for the task',
+            'type' => 'Feature',
+            'priority' => 'High',
+        ]);
+
+    $response->assertStatus(201)
+        ->assertJson([
+            'data' => [
+                'title' => 'New Task',
+            ],
+        ]);
+}
+Running Tests:
+
+Run php artisan test to execute all tests and validate API functionality.
+Testing with Postman:
+
+Import the Postman collection provided.
+Configure environment variables for JWT and other settings.
+Verify each endpoint, paying attention to permissions and responses.
 
 
-## PostMan Collection:
+## API Documentation
+
+- Comprehensive API documentation is available via Postman, including sample requests and responses for each endpoint. It also details authentication requirements, possible error messages, and advanced filter usage.
+
 https://documenter.getpostman.com/view/34411360/2sAXxWYToW
