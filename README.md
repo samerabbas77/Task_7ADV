@@ -119,11 +119,10 @@ The Advanced Task Management API is designed to facilitate comprehensive task ma
    - Supports soft deletion and recovery of tasks, maintaining historical data.
 
 ---
-Routes Configuration
+### Routes Configuration
 To use the routes for the API endpoints, add the following code to your api.php routes file:
 
-php
-Copy code
+```
 <?php
 
 use Illuminate\Support\Facades\Route;
@@ -164,11 +163,11 @@ Route::group([
     Route::post('/Uncomplete-report', [ReportController::class, 'create_UnCompleted_Task_Report']);
     Route::get('/filter-complete-report', [ReportController::class, 'getReportsByfilters']);
 });
-
+```
 ### Testing
 For testing the API, you can use both unit and feature tests in Laravel:
 
-Setup PHPUnit:
+**Setup PHPUnit:**
 
 In your project root, set up your .env.testing file with database configurations for testing.
 Run migrations: php artisan migrate --env=testing.
@@ -179,7 +178,7 @@ Feature Tests: Test the routes and endpoints to ensure they are functioning corr
 Example Feature Test:
 
 Here is a basic example for testing the task creation endpoint:
-
+```
 public function testCreateTask()
 {
     $response = $this->actingAs($user, 'api')
@@ -197,14 +196,15 @@ public function testCreateTask()
             ],
         ]);
 }
-Running Tests:
+```
+### Running Tests:
 
-Run php artisan test to execute all tests and validate API functionality.
-Testing with Postman:
+- Run php artisan test to execute all tests and validate API functionality.
+- Testing with Postman:
 
-Import the Postman collection provided.
-Configure environment variables for JWT and other settings.
-Verify each endpoint, paying attention to permissions and responses.
+- Import the Postman collection provided.
+- Configure environment variables for JWT and other settings.
+- Verify each endpoint, paying attention to permissions and responses.
 
 
 ## API Documentation
