@@ -164,6 +164,9 @@ Route::group([
     Route::get('/filter-complete-report', [ReportController::class, 'getReportsByfilters']);
 });
 ```
+
+---
+
 ### Testing
 For testing the API, you can use both unit and feature tests in Laravel:
 
@@ -205,6 +208,8 @@ public function testCreateTask()
 - Import the Postman collection provided.
 - Configure environment variables for JWT and other settings.
 - Verify each endpoint, paying attention to permissions and responses.
+
+---
 
 
 ## API Documentation
